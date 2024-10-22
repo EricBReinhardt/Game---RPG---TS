@@ -2,6 +2,6 @@
 
 How to run:
 
-npm i prompt-sync
+npm i 
 
 ts-node ./index.ts
