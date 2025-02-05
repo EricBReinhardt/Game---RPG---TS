@@ -1,5 +1,5 @@
 import { Util } from "./Util";
-import { Inimigo1, Inimigo2, Inimigo3 } from './inimigos/inimigos_1';
+import { Inimigo1, Inimigo2, Inimigo3 } from './class/inimigos/inimigos_1';
 import { heroi } from "./index"
 import promptSync from "prompt-sync";
 
@@ -15,7 +15,7 @@ export function jogo() {
 
     chanceEncontros = Util.randomizar(1, 10);
 
-    if (numeroEncontros == 0 || numeroEncontros == 4 || numeroEncontros == 8) {
+    if (numeroEncontros == 0 || numeroEncontros == 4 || numeroEncontros == 9) {
         fogueira()
     }
 
@@ -33,7 +33,7 @@ function getInimigoAleatorio() {
     return new inimigos[chanceBatalha]();
 }
 
-function mostrarMenu(numeroDescanso: number, numeroTreinos: number) {
+function mostrarMenu(numeroDescanso: number, numeroTreinos: number): void {
     console.log("\n========= FOGUEIRA =========");
     if (numeroTreinos < 3 && numeroDescanso == 0) {
         console.log("1 - Treinar força");
@@ -91,12 +91,12 @@ function fogueira() {
                     heroi.descansar(numeroHoras);
                     if (numeroHoras == 2) {
                         let emboscada = Util.randomizar(1, 2)
-                        if (emboscada = 2) {
+                        if (emboscada == 2) {
                             batalha()
                         }
                     }
                 } else if (numeroTreinos >= 3 && numeroDescanso == 1) {
-                    heroi.status();
+                    heroi.mostrarStatusRelevante("todos");
                 }
                 break;
             case 2:
@@ -113,7 +113,7 @@ function fogueira() {
                     }
                     heroi.treinarIntelecto(numeroHoras);
                 } else if (numeroTreinos >= 3 && numeroDescanso == 0) {
-                    heroi.status();
+                    heroi.mostrarStatusRelevante("todos");
                 } else if (numeroTreinos >= 3 && numeroDescanso == 1) {
                     console.log("-".repeat(20));
                     console.log("Você avança para próxima área...");
@@ -155,18 +155,18 @@ function fogueira() {
                     heroi.descansar(numeroHoras);
                     if (numeroHoras == 2) {
                         let emboscada = Util.randomizar(1, 2)
-                        if (emboscada = 2) {
+                        if (emboscada == 2) {
                             batalha()
                         }
                     }
                 }
                 else if (numeroTreinos < 3 && numeroDescanso == 1) {
-                    heroi.status();
+                    heroi.mostrarStatusRelevante("todos");
                 }
                 break;
             case 5:
                 if (numeroTreinos <= 3 && numeroDescanso == 0) {
-                    heroi.status();
+                    heroi.mostrarStatusRelevante("todos");
                 }
                 else if (numeroDescanso == 1 && numeroTreinos <= 3) {
                     console.log("-".repeat(20));
@@ -190,28 +190,28 @@ function fogueira() {
 
 function batalha() {
     let inimigo = getInimigoAleatorio();
-    console.log(`\nVocê se depara com um(a)... ${inimigo.nome}`);
+    console.log(`\nVocê se depara com um(a)... ${inimigo.getNome()}`);
 
     while (true) {
-
-        if (inimigo.vida <= 0) {
-            console.log(`Você derrotou a/o ${inimigo.nome}`);
-            console.log(`Você ganhou ${inimigo.exp} de expêriencia e ${inimigo.gold} de gold.`);
-            heroi.exp = heroi.exp + inimigo.exp
-            heroi.gold = heroi.gold + inimigo.gold
-            let chanceDrop = inimigo.chanceItem
+        if (inimigo.getVida() <= 0) {
+            console.log(`Você derrotou a/o ${inimigo.getNome()}`);
+            console.log(`Você ganhou ${inimigo.getExp()} de experiência e ${inimigo.getGold()} de gold.`);
+            heroi.setExp(inimigo.getExp());
+            heroi.setGold(inimigo.getGold());
+            let chanceDrop = inimigo.getChanceItem();
             let sorte = Util.randomizar(1, 100);
             if (sorte <= chanceDrop) {
-                const itensArray = Array.from(inimigo.itens);
-                const itemAleatorio = Util.randomizar(0, itensArray.length);
+                const itensArray = Array.from(inimigo.getItens());
+                const itemAleatorio = Util.randomizar(0, itensArray.length - 1);
                 const item = itensArray[itemAleatorio];
-                heroi.inventario.add(item);
+                heroi.getInventario().add(item as string);
                 console.log(`O inimigo dropou um/uma ${item}! Você botou em seu inventário...`);
             }
-            inimigo.debuffVeneno = 0
-            numeroEncontros = numeroEncontros + 1
-            heroi.upar()
-            jogo()
+            inimigo.setDebuffVeneno(0);
+            numeroEncontros += 1;
+            heroi.upar();
+            jogo();
+            return;
         }
 
         console.log("\n========= COMBATE =========");
@@ -219,98 +219,107 @@ function batalha() {
         console.log("2 - Habilidades");
         console.log("3 - Itens\n");
 
-        const opcao = Number(prompt("Escolha uma opção: "))
+        const opcao = Number(prompt("Escolha uma opção: "));
 
         switch (opcao) {
             case 1:
-                if (heroi.destreza >= inimigo.destreza && inimigo.vida > 0) {
-                    atacar(inimigo)
-                    inimigoTurno(inimigo)
-                } else if (heroi.destreza < inimigo.destreza && inimigo.vida > 0) {
-                    inimigoTurno(inimigo)
-                    atacar(inimigo)
+                if (heroi.getDestreza() >= inimigo.getDestreza()) {
+                    atacar(inimigo);
+                    if (inimigo.getVida() > 0) {
+                        inimigoTurno(inimigo);
+                    }
+                } else {
+                    inimigoTurno(inimigo);
+                    if (inimigo.getVida() > 0) {
+                        atacar(inimigo);
+                    }
                 }
                 break;
             case 2:
-                if (inimigo.vida > 0) {
-                    habilidades(inimigo)
-                }
+                habilidades(inimigo);
                 break;
             case 3:
+                // Lógica para usar itens
                 break;
             default:
+                console.log("Opção inválida.");
                 break;
+        }
+
+        if (heroi.getVida() <= 0) {
+            console.log("Você morreu...");
+            return;
         }
     }
 }
 
 function inimigoTurno(adversario: Inimigo1): void {
-    let inimigoDano = Math.abs(adversario.forca + adversario.destreza + (adversario.intelecto * 0.50) + danoVar - heroi.defesa)
+    let inimigoDano = Math.abs(adversario.getForca() + adversario.getDestreza() + (adversario.getIntelecto() * 0.50) + danoVar - heroi.getDefesa())
     console.log("-".repeat(20));
-    if (adversario.vida <= 0) {
+    if (adversario.getVida() <= 0) {
         return;
     }
-    if (adversario.debuffVeneno >= 1) {
-        console.log(`O/A inimigo(a) está envenenado(a) e recebe ${15 + (heroi.destreza + heroi.forca)} de dano`);
-        adversario.vida = adversario.vida - (15 + (heroi.destreza + heroi.forca))
-        adversario.debuffVeneno = adversario.debuffVeneno - 1
+    if (adversario.getDebuffVeneno() >= 1) {
+        console.log(`O/A inimigo(a) está envenenado(a) e recebe ${15 + (heroi.getDestreza() + heroi.getForca())} de dano`);
+        adversario.setVida(adversario.getVida() - (15 + (heroi.getDestreza() + heroi.getForca())));
+        adversario.setDebuffVeneno(adversario.getDebuffVeneno() - 1);
     }
-    if (adversario.vida <= 0) {
+    if (adversario.getVida() <= 0) {
         return;
     }
-    console.log(`O/A ${adversario.nome} te ataca e causa ${inimigoDano} de dano`);
-    console.log(`O/A ${adversario.nome} perde ${danoVar + 10} de Stamina`);
-    adversario.stamina = adversario.stamina - (danoVar + 10)
-    heroi.vida = heroi.vida - inimigoDano
-    console.log(`Sua vida atual é ${heroi.vida}/${heroi.maxVida}`);
-    if (heroi.vida <= 0) {
+    console.log(`O/A ${adversario.getNome()} te ataca e causa ${inimigoDano} de dano`);
+    console.log(`O/A ${adversario.getNome()} perde ${danoVar + 10} de Stamina`);
+    adversario.setStamina(adversario.getStamina() - (danoVar + 10));
+    heroi.setVida(heroi.getVida() - inimigoDano);
+    heroi.mostrarStatusRelevante("vida");
+    if (heroi.getVida() <= 0) {
         throw console.error("Você morreu");
     }
 }
 
 function atacar(adversario: Inimigo1): void {
-    let dano = Math.abs(heroi.forca + heroi.destreza + (heroi.intelecto * 0.50) + danoVar - adversario.defesa)
+    let dano = Math.abs(heroi.getForca() + heroi.getDestreza() + (heroi.getIntelecto() * 0.50) + danoVar - adversario.getDefesa())
     console.log("-".repeat(20));
-    if (heroi.stamina <= 0) {
+    if (heroi.getStamina() <= 0) {
         console.log("Sua stamina esgotou...");
         let sorteStamina = Util.randomizar(1, 3)
         if (sorteStamina < 3) {
             console.log("Mas você consegue atacar e recuperar parte de sua stamina!");
-            heroi.stamina = 25
+            heroi.setStamina(heroi.getStamina() + 25);
         } else {
             console.log("Você está cansado demais para atacar...");
         }
-    } if (heroi.stamina > 0) {
-        if (heroi.buffGritoDeGuerra != 0) {
-            console.log(`Você ataca a/o ${adversario.nome} impulsionado pelo Grito de Guerra!`);
-            adversario.vida = adversario.vida - (dano * 2)
-            console.log(`Você causa ${dano * 2} de dano físico na/no ${adversario.nome}`);
-            if (heroi.buffGritoDeGuerra > 0) {
-                console.log(`Duração buff Grito de Guerra: ${heroi.buffGritoDeGuerra - 1} turno(s)`);
+    } if (heroi.getStamina() > 0) {
+        if (heroi.getBuffGritoDeGuerra() != 0) {
+            console.log(`Você ataca a/o ${adversario.getNome()} impulsionado pelo Grito de Guerra!`);
+            adversario.setVida(adversario.getVida() - (dano * 2))
+            console.log(`Você causa ${dano * 2} de dano físico na/no ${adversario.getNome()}`);
+            if (heroi.getBuffGritoDeGuerra() > 0) {
+                console.log(`Duração buff Grito de Guerra: ${heroi.getBuffGritoDeGuerra() - 1} turno(s)`);
 
             } else {
                 console.log(`Buff acabou`);
-            } if (heroi.buffImbuirVeneno == 1) {
-                console.log(`${adversario.nome} está envenenado por 3 turnos!`);
-                heroi.buffImbuirVeneno = 0
-                adversario.debuffVeneno = 3
+            } if (heroi.getBuffImbuirVeneno() == 1) {
+                console.log(`${adversario.getNome()} está envenenado por 3 turnos!`);
+                heroi.setBuffImbuirVeneno(0)
+                adversario.setDebuffVeneno(3)
             }
             console.log(`Você perde ${danoVar + 10} de Stamina`);
-            heroi.stamina = heroi.stamina - (danoVar + 10)
-            console.log(`Sua Stamina atual é ${heroi.stamina}/${heroi.maxStamina}`);
-            heroi.buffGritoDeGuerra = heroi.buffGritoDeGuerra - 1
+            heroi.setStamina(heroi.getStamina() - (danoVar + 10))
+            heroi.mostrarStatusRelevante("stamina");
+            heroi.setBuffGritoDeGuerra(heroi.getBuffGritoDeGuerra() - 1);
         } else {
-            console.log(`Você ataca a/o ${adversario.nome}`);
-            adversario.vida = adversario.vida - dano
-            console.log(`Você causa ${dano} de dano físico na/no ${adversario.nome}`);
-            if (heroi.buffImbuirVeneno == 1) {
-                console.log(`${adversario.nome} está envenenado por 3 turnos!`);
-                heroi.buffImbuirVeneno = 0
-                adversario.debuffVeneno = 3
+            console.log(`Você ataca a/o ${adversario.getNome()}`);
+            adversario.setVida(adversario.getVida() - dano)
+            console.log(`Você causa ${dano} de dano físico na/no ${adversario.getNome()}`);
+            if (heroi.getBuffImbuirVeneno() == 1) {
+                console.log(`${adversario.getNome()} está envenenado por 3 turnos!`);
+                heroi.setBuffImbuirVeneno(0);
+                adversario.setDebuffVeneno(3);
             }
             console.log(`Você perde ${danoVar + 10} de Stamina`);
-            heroi.stamina = heroi.stamina - (danoVar + 10)
-            console.log(`Sua Stamina atual é ${heroi.stamina}/${heroi.maxStamina}`);
+            heroi.setStamina(heroi.getStamina() - (danoVar + 10));
+            heroi.mostrarStatusRelevante("stamina");
         }
     }
 }
@@ -327,7 +336,7 @@ const habilidadesMap: { [key: string]: Habilidade } = {
 }
 
 function habilidades(adversario: Inimigo1): void {
-    let spellsArray = Array.from(heroi.spells);
+    let spellsArray = Array.from(heroi.getSpells());
     if (spellsArray.length > 0) {
         console.log("\n========= HABILIDADES =========");
         console.log("");
@@ -349,101 +358,102 @@ function habilidades(adversario: Inimigo1): void {
 
 function gritoDeGuerra(adversario: Inimigo1): void {
     console.log("-".repeat(20));
-    if (heroi.stamina < 80) {
+    if (heroi.getStamina() < 80) {
         console.log("Stamina insuficiente para usar Grito de Guerra.");
         return;
     }
     console.log("Você usou Grito de Guerra!");
-    console.log("Agora você causa dano X 2 por 2 turnos\n");
-    heroi.buffGritoDeGuerra = 2;
-    heroi.stamina = heroi.stamina - 80;
+    console.log("Agora você causa dano X2 por 2 turnos\n");
+    heroi.setBuffGritoDeGuerra(2);
+    heroi.setStamina(heroi.getStamina() - 80);
     console.log(`Você perdeu 80 de stamina`);
-    console.log(`Sua Stamina atual é ${heroi.stamina}/${heroi.maxStamina}`);
+    heroi.mostrarStatusRelevante("stamina");
     inimigoTurno(adversario)
 }
 
 function trovao(adversario: Inimigo1): void {
     console.log("-".repeat(20));
-    if (heroi.mana < 100) {
+    if (heroi.getMana() < 100) {
         console.log("Mana insuficiente para usar Trovão.");
         return;
     }
     console.log("Você usou Trovão!");
-    console.log(`Causa ${30 + (heroi.intelecto * 0.50)} de dano mágico`);
-    adversario.vida = adversario.vida - (30 + (heroi.intelecto * 0.50));
-    heroi.mana = heroi.mana - 100;
+    console.log(`Causa ${30 + (heroi.getIntelecto() * 0.50)} de dano mágico`);
+    adversario.setVida(adversario.getVida() - (30 + (heroi.getIntelecto() * 0.50)));
+    heroi.setMana(heroi.getMana() - 100);
     console.log(`Você perdeu 100 de mana`);
-    console.log(`Sua mana atual é ${heroi.mana}/${heroi.maxMana}`);
+    heroi.mostrarStatusRelevante("mana");
     inimigoTurno(adversario)
 }
 
 function meteoro(adversario: Inimigo1): void {
     console.log("-".repeat(20));
-    if (heroi.mana < 250) {
+    if (heroi.getMana() < 250) {
         console.log("Mana insuficiente para usar Meteoro.");
         return;
     }
     console.log("Você usou Meteoro!");
-    console.log(`Causa ${100 + heroi.intelecto} de dano mágico`);
-    adversario.vida = adversario.vida - (100 + heroi.intelecto);
-    heroi.mana = heroi.mana - 250;
+    console.log(`Causa ${100 + heroi.getIntelecto()} de dano mágico`);
+    adversario.setVida(adversario.getVida() - (100 + heroi.getIntelecto()));
+    heroi.setMana(heroi.getMana() - 250);
     console.log(`Você perdeu 250 de mana`);
-    console.log(`Sua mana atual é ${heroi.mana}/${heroi.maxMana}`);
+    heroi.mostrarStatusRelevante("mana");
     inimigoTurno(adversario)
 }
 
 function roubar(adversario: Inimigo1): void {
     console.log("-".repeat(20));
-    if (heroi.stamina < 50) {
+    if (heroi.getStamina() < 50) {
         console.log("Stamina insuficiente para usar Roubar.");
         return;
     }
     console.log("Você usou Roubar!");
-    heroi.gold = heroi.gold + (adversario.gold * 0.50);
-    console.log(`Você roubou ${adversario.gold * 0.50} de gold`);
-    let sorte = Util.randomizar(1, 2);
-    if (sorte = 1) {
-        const itensArray = Array.from(adversario.itens);
+    heroi.setGold(heroi.getGold() + (adversario.getGold() * 0.50));
+    console.log(`Você roubou ${adversario.getGold() * 0.50} de gold`);
+    let sorte = Util.randomizar(1, 3);
+    if (sorte === 1) {
+        const itensArray = Array.from(adversario.getItens());
         const itemAleatorio = Util.randomizar(0, itensArray.length);
         const item = itensArray[itemAleatorio];
-        heroi.inventario.add(item);
+        heroi.getInventario().add(item as string);
         console.log(`Você roubou um/uma ${item}! Você botou em seu inventário...`);
     }
-    heroi.stamina = heroi.stamina - 50;
+    heroi.setStamina(heroi.getStamina() - 50);
     console.log(`Você perdeu 50 de stamina`);
-    console.log(`Sua stamina atual é ${heroi.stamina}/${heroi.maxStamina}`);
+    heroi.mostrarStatusRelevante("stamina");
     inimigoTurno(adversario)
 }
 
 function curaSagrada(adversario: Inimigo1): void {
     console.log("-".repeat(20));
-    if (heroi.mana < 80) {
+    if (heroi.getMana() < 80) {
         console.log("Mana insuficiente para usar Cura Sagrada.");
         return;
-    } else if (heroi.vida == heroi.maxVida) {
+    } else if (heroi.getVida() == heroi.getMaxVida()) {
         console.log("Sua vida já está cheia.");
         return;
     }
+    let cura = 50 + (heroi.getIntelecto() * 0.50) + (heroi.getForca() * 0.50);
     console.log("Você usou Cura Sagrada!");
-    console.log(`Você cura ${50 + (heroi.intelecto * 0.50) + (heroi.forca * 0.50)} de vida`);
-    heroi.vida = heroi.vida + (50 + (heroi.intelecto * 0.50) + (heroi.forca * 0.50));
-    heroi.mana = heroi.mana - 80;
+    console.log(`Você cura ${cura} de vida`);
+    heroi.setVida(heroi.getVida() + (cura));
+    heroi.setMana(heroi.getMana() - 80);
     console.log(`Você perdeu 80 de mana`);
-    console.log(`Sua mana atual é ${heroi.mana}/${heroi.maxMana}`);
+    heroi.mostrarStatusRelevante("mana");
     inimigoTurno(adversario)
 }
 
 function imbuirVeneno(adversario: Inimigo1): void {
     console.log("-".repeat(20));
-    if (heroi.stamina < 100) {
+    if (heroi.getStamina() < 100) {
         console.log("Stamina insuficiente para usar Imbuir Veneno.");
         return;
     }
     console.log("Você usou Imbuir Veneno!");
     console.log(`Seu próximo ataque aplicará veneno ao inimigo por 3 turnos`);
-    heroi.buffImbuirVeneno = 1;
-    heroi.stamina = heroi.stamina - 100;
+    heroi.setBuffImbuirVeneno(1);
+    heroi.setStamina(heroi.getStamina() - 100);
     console.log(`Você perdeu 100 de stamina`);
-    console.log(`Sua stamina atual é ${heroi.stamina}/${heroi.maxStamina}`);
+    heroi.mostrarStatusRelevante("stamina");
     inimigoTurno(adversario)
 }

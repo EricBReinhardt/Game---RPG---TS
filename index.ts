@@ -1,9 +1,9 @@
-import { Personagem } from "./personagem";
+import { Personagem } from "./class/personagem";
 import { jogo } from "./jogosistema"
-import prompt from 'prompt-sync';
+import promptSync from 'prompt-sync';
 
-const teclado = prompt()
-const nome = teclado("Digite o nome do herói: ");
+const prompt = promptSync();
+const nome = prompt("Digite o nome do herói: ");
 
 let raca: string = "Desconhecido";
 let classe: string = "Desconhecido";
@@ -25,7 +25,7 @@ while (true) {
     console.log("3 - Anão");
     console.log("4 - Goblin");
     console.log("5 - Morto-Vivo\n");
-    const opcao: number = +teclado("Escolha uma raça: ");
+    const opcao = Number(prompt("Escolha uma opção: "))
 
     if (opcao == 1) {
         raca = "Humano";
@@ -85,7 +85,7 @@ while (true) {
     console.log("3 - Paladino");
     console.log("4 - Ladrão");
     console.log("5 - Mago\n");
-    const opcao: number = +teclado("Escolha uma classe: ")
+    const opcao = Number(prompt("Escolha uma opção: "))
 
     if (opcao == 1) {
         classe = "Guerreiro";
