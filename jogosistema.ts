@@ -40,21 +40,25 @@ function mostrarMenu(numeroDescanso: number, numeroTreinos: number): void {
         console.log("2 - Treinar intelecto");
         console.log("3 - Treinar destreza");
         console.log("4 - Descansar");
-        console.log("5 - Status");
-        console.log("6 - Avançar área\n");
+        console.log("5 - Inventário");
+        console.log("6 - Status");
+        console.log("7 - Avançar área\n");
     } else if (numeroTreinos >= 3 && numeroDescanso == 0) {
         console.log("1 - Descansar");
-        console.log("2 - Status");
-        console.log("3 - Avançar área\n");
+        console.log("2 - Inventário");
+        console.log("3 - Status");
+        console.log("4 - Avançar área\n");
     } else if (numeroTreinos < 3 && numeroDescanso == 1) {
         console.log("1 - Treinar força");
         console.log("2 - Treinar intelecto");
         console.log("3 - Treinar destreza");
-        console.log("4 - Status");
-        console.log("5 - Avançar área\n");
+        console.log("4 - Inventário");
+        console.log("5 - Status");
+        console.log("6 - Avançar área\n");
     } else if (numeroTreinos >= 3 && numeroDescanso == 1) {
-        console.log("1 - Status");
-        console.log("2 - Avançar área\n");
+        console.log("1 - Inventário");
+        console.log("2 - Status");
+        console.log("3 - Avançar área\n");
     }
 }
 
@@ -96,7 +100,7 @@ function fogueira() {
                         }
                     }
                 } else if (numeroTreinos >= 3 && numeroDescanso == 1) {
-                    heroi.mostrarStatusRelevante("todos");
+                    heroi.mostrarInventario();
                 }
                 break;
             case 2:
@@ -113,13 +117,9 @@ function fogueira() {
                     }
                     heroi.treinarIntelecto(numeroHoras);
                 } else if (numeroTreinos >= 3 && numeroDescanso == 0) {
-                    heroi.mostrarStatusRelevante("todos");
+                    heroi.mostrarInventario();
                 } else if (numeroTreinos >= 3 && numeroDescanso == 1) {
-                    console.log("-".repeat(20));
-                    console.log("Você avança para próxima área...");
-                    numeroEncontros = numeroEncontros + 1;
-                    chanceEncontros = Util.randomizar(1, 10);
-                    jogo()
+                    heroi.mostrarStatusRelevante("todos");
                 }
                 break;
 
@@ -137,11 +137,13 @@ function fogueira() {
                     }
                     heroi.treinarDestreza(numeroHoras);
                 } else if (numeroTreinos >= 3 && numeroDescanso == 0) {
+                    heroi.mostrarStatusRelevante("todos");
+                } else if (numeroTreinos >= 3 && numeroDescanso == 1) {
                     console.log("-".repeat(20));
                     console.log("Você avança para próxima área...");
                     numeroEncontros = numeroEncontros + 1;
                     chanceEncontros = Util.randomizar(1, 10);
-                    jogo();
+                jogo()
                 }
                 break;
             case 4:
@@ -159,29 +161,45 @@ function fogueira() {
                             batalha()
                         }
                     }
-                }
-                else if (numeroTreinos < 3 && numeroDescanso == 1) {
-                    heroi.mostrarStatusRelevante("todos");
-                }
-                break;
-            case 5:
-                if (numeroTreinos <= 3 && numeroDescanso == 0) {
-                    heroi.mostrarStatusRelevante("todos");
-                }
-                else if (numeroDescanso == 1 && numeroTreinos <= 3) {
+                } else if (numeroTreinos < 3 && numeroDescanso == 1) {
+                    heroi.mostrarInventario();
+                } else if (numeroTreinos >= 3 && numeroDescanso == 0) {
                     console.log("-".repeat(20));
                     console.log("Você avança para próxima área...");
                     numeroEncontros = numeroEncontros + 1;
                     chanceEncontros = Util.randomizar(1, 10);
-                    break;
+                    jogo()
+                }
+                break;
+            case 5:
+                if (numeroTreinos <= 3 && numeroDescanso == 0) {
+                    heroi.mostrarInventario();
+                }
+                else if (numeroDescanso == 1 && numeroTreinos <= 3) {
+                    heroi.mostrarStatusRelevante("todos");
                 }
                 break;
             case 6:
+                if (numeroTreinos < 3 && numeroDescanso == 0) {
+                    heroi.mostrarStatusRelevante("todos");
+                }
+                else if (numeroTreinos < 3 && numeroDescanso == 1){
                 console.log("-".repeat(20));
                 console.log("Você avança para próxima área...");
                 numeroEncontros = numeroEncontros + 1;
                 chanceEncontros = Util.randomizar(1, 10);
                 jogo()
+                }
+                break;
+            case 7:
+                if (numeroTreinos < 3 && numeroDescanso == 0){
+                console.log("-".repeat(20));
+                console.log("Você avança para próxima área...");
+                numeroEncontros = numeroEncontros + 1;
+                chanceEncontros = Util.randomizar(1, 10);
+                jogo()
+                }
+                break;
             default:
                 break;
         }
@@ -279,6 +297,7 @@ function inimigoTurno(adversario: Inimigo1): void {
 
 function atacar(adversario: Inimigo1): void {
     let dano = Math.abs(heroi.getForca() + heroi.getDestreza() + (heroi.getIntelecto() * 0.50) + danoVar - adversario.getDefesa())
+    let heroiAtacou = false;
     console.log("-".repeat(20));
     if (heroi.getStamina() <= 0) {
         console.log("Sua stamina esgotou...");
@@ -304,10 +323,8 @@ function atacar(adversario: Inimigo1): void {
                 heroi.setBuffImbuirVeneno(0)
                 adversario.setDebuffVeneno(3)
             }
-            console.log(`Você perde ${danoVar + 10} de Stamina`);
-            heroi.setStamina(heroi.getStamina() - (danoVar + 10))
-            heroi.mostrarStatusRelevante("stamina");
             heroi.setBuffGritoDeGuerra(heroi.getBuffGritoDeGuerra() - 1);
+            heroiAtacou = true;
         } else {
             console.log(`Você ataca a/o ${adversario.getNome()}`);
             adversario.setVida(adversario.getVida() - dano)
@@ -317,8 +334,14 @@ function atacar(adversario: Inimigo1): void {
                 heroi.setBuffImbuirVeneno(0);
                 adversario.setDebuffVeneno(3);
             }
+            heroiAtacou = true;
+        }
+        if (heroiAtacou) {
             console.log(`Você perde ${danoVar + 10} de Stamina`);
-            heroi.setStamina(heroi.getStamina() - (danoVar + 10));
+            heroi.setStamina(heroi.getStamina() - (danoVar + 10))
+            if (heroi.getStamina() < 0) {
+                heroi.setStamina(0);
+            }
             heroi.mostrarStatusRelevante("stamina");
         }
     }

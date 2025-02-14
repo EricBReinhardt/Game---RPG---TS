@@ -16,11 +16,8 @@ export class Inimigo1 extends InimigoBase {
             Util.randomizar(100, 200), // exp
             Util.randomizar(100, 200), // gold
             new Set([
-                'Espada de ferro',
-                'Arco recurvo',
-                'Martelo do soldado',
-                'Cajado do aprendiz',
-                'Adaga de caça'
+                'Capa Invisível',
+                'Arco Élfico'
             ]), // itens
             20, // chanceItem
             0 // debuffVeneno
@@ -43,11 +40,8 @@ export class Inimigo2 extends InimigoBase {
             Util.randomizar(150, 250), // exp
             Util.randomizar(150, 250), // gold
             new Set([
-                'Espada de ferro',
-                'Arco recurvo',
-                'Martelo do soldado',
-                'Cajado do aprendiz',
-                'Adaga de caça'
+                'Armadura Abençoada',
+                'Adaga Amaldiçoada'
             ]), // itens
             20, // chanceItem
             0 // debuffVeneno
@@ -70,11 +64,8 @@ export class Inimigo3 extends InimigoBase {
             Util.randomizar(200, 300), // exp
             Util.randomizar(200, 300), // gold
             new Set([
-                'Espada de ferro',
-                'Arco recurvo',
-                'Martelo do soldado',
-                'Cajado do aprendiz',
-                'Adaga de caça'
+                'Manto do Mestre Mago',
+                'Varinha do Professor'
             ]), // itens
             20, // chanceItem
             0 // debuffVeneno

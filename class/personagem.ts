@@ -137,6 +137,24 @@ export class Personagem extends Base {
         }
     }
 
+    public equiparItem(item: string): void {
+        if (this.inventario.has(item)) {
+            if (item.includes("Armadura")) {
+                this.armadura = item;
+            } else if (item.includes("Arma")) {
+                this.arma = item;
+            }
+            console.log(`Você equipou ${item}`);
+        } else {
+            console.log("Você não possui esse item no inventário.");
+        }
+    }
+
+    public mostrarInventario(): void {
+        console.log("Inventário:");
+        console.log(Array.from(this.inventario).join(", "));
+    }
+
     public upar(): void {
         while (this.exp >= this.maxExp) {
             let expResto = this.exp - this.maxExp;
@@ -239,112 +257,3 @@ export class Personagem extends Base {
         }
     }
 }
-
-// // Classe base para itens
-// class Item {
-//     nome: string;
-//     tipo: string;
-//     atributos: { [key: string]: number };
-
-//     constructor(nome: string, tipo: string, atributos: { [key: string]: number }) {
-//         this.nome = nome;
-//         this.tipo = tipo;
-//         this.atributos = atributos;
-//     }
-
-//     aplicarEfeito(personagem: Personagem): void {
-//         // Método a ser sobrescrito nas subclasses
-//         console.log(`${this.nome} não tem efeito definido.`);
-//     }
-// }
-
-// // Classe para itens consumíveis
-// class Consumivel extends Item {
-//     constructor(nome: string, atributos: { [key: string]: number }) {
-//         super(nome, 'consumível', atributos);
-//     }
-
-//     aplicarEfeito(personagem: Personagem): void {
-//         console.log(`Usando ${this.nome}.`);
-
-//         for (const [atributo, valor] of Object.entries(this.atributos)) {
-//             if (atributo === 'vida') {
-//                 personagem.vida += valor;
-//                 if (personagem.vida > personagem.maxVida) {
-//                     personagem.vida = personagem.maxVida;
-//                 }
-//             } else if (atributo === 'mana') {
-//                 personagem.mana += valor;
-//                 if (personagem.mana > personagem.maxMana) {
-//                     personagem.mana = personagem.maxMana;
-//                 }
-//             } else if (atributo === 'stamina') {
-//                 personagem.stamina += valor;
-//                 if (personagem.stamina > personagem.maxStamina) {
-//                     personagem.stamina = personagem.maxStamina;
-//                 }
-//             }
-//         }
-
-//         console.log(`${this.nome} usado com sucesso.`);
-//     }
-// }
-
-// // Classe para armas
-// class Arma extends Item {
-//     constructor(nome: string, atributos: { [key: string]: number }) {
-//         super(nome, 'arma', atributos);
-//     }
-
-//     aplicarEfeito(personagem: Personagem): void {
-//         console.log(`Equipando ${this.nome}.`);
-
-//         for (const [atributo, valor] of Object.entries(this.atributos)) {
-//             if (atributo in personagem) {
-//                 (personagem as any)[atributo] += valor;
-//             }
-//         }
-
-//         console.log(`${this.nome} equipada com sucesso.`);
-//     }
-// }
-
-// // Classe para armaduras
-// class Armadura extends Item {
-//     constructor(nome: string, atributos: { [key: string]: number }) {
-//         super(nome, 'armadura', atributos);
-//     }
-
-//     aplicarEfeito(personagem: Personagem): void {
-//         console.log(`Equipando ${this.nome}.`);
-
-//         for (const [atributo, valor] of Object.entries(this.atributos)) {
-//             if (atributo in personagem) {
-//                 (personagem as any)[atributo] += valor;
-//             }
-//         }
-
-//         console.log(`${this.nome} equipada com sucesso.`);
-//     }
-// }
-
-// Definindo itens específicos com base na descrição fornecida
-// const poçãoDeVida = new Consumivel('Poção de Vida', { vida: 50 });
-// const poçãoDeMana = new Consumivel('Poção de Mana', { mana: 50 });
-// const poçãoDeStamina = new Consumivel('Poção de Stamina', { stamina: 50 });
-// const arcoÉlfico = new Arma('Arco Élfico', { destreza: 10 });
-// const adagaAmaldiçoada = new Arma('Adaga Amaldiçoada', { forca: 10, destreza: 20, maxVida: -100 });
-// const espadaDoAntigoHeroi = new Arma('Espada do Antigo Herói', { forca: 10 });
-// const machadoSedentoDeSangue = new Arma('Machado Sedento de Sangue', { forca: 15, maxVida: -50 });
-// const chicoteDeGaia = new Arma('Chicote de Gaia', { destreza: 15, maxStamina: 50 });
-// const espadasDuplasDoMercenario = new Arma('Espadas Duplas do Mercenário', { forca: 20, destreza: 10 });
-// const varinhaDoProfessor = new Arma('Varinha do Professor', { intelecto: 20, maxMana: 25 });
-// const cajadoDraconico = new Arma('Cajado Dracônico', { intelecto: 40, maxMana: 50 });
-// const necronomicon = new Arma('Necronomicon', { intelecto: 5 });
-// const capaInvisivel = new Armadura('Capa Invisível', { defesa: 5, destreza: 5 });
-// const armaduraAbencoada = new Armadura('Armadura Abençoada', { defesa: 15, intelecto: 2, forca: 2, maxVida: 150, maxMana: 100 });
-// const mantoDoMestreMago = new Armadura('Manto do Mestre Mago', { defesa: 5, intelecto: 10, maxMana: 500 });
-// const roupasDoDeusMensageiro = new Armadura('Roupas do Deus Mensageiro', { defesa: 5, destreza: 10, maxStamina: 500 });
-// const armaduraDeShiva = new Armadura('Armadura de Shiva', { defesa: 5, forca: 10, maxVida: 500 });
-// const couracaDoMartyr = new Armadura('Couraça do Martyr', { defesa: 7, maxVida: 50, forca: 2 });
-// const mantoDeChamas = new Armadura('Manto de Chamas', { defesa: 10, forca: 5, intelecto: 5, destreza: 5 });

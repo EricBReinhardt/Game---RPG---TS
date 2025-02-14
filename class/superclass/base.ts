@@ -191,7 +191,6 @@ export class Base {
                 console.log(`Destreza: ${this.destreza}`);
                 console.log(`Defesa: ${this.defesa}`);
             default:
-                console.log("Status não reconhecido.");
                 break;
         }
     }
